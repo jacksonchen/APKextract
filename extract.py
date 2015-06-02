@@ -35,17 +35,21 @@ for root, dirs, files in os.walk(sys.argv[1]):
     print "=====Multiple subdirectories====="
     for dir in dirs:
       dirPath = os.path.abspath(os.path.join(root, dir))
+      unpackedsubPath = os.path.join(unpackedPath, dir)
 
-      UnpackCOMMAND = "python " + appsrepoPath + "/tools/apktool_executor.py " + dirPath + " " + unpackedPath
+      if not os.path.exists(unpackedsubPath):
+        os.makedirs(unpackedsubPath)
+
+      UnpackCOMMAND = "python " + appsrepoPath + "/tools/apktool_executor.py " + dirPath + " " + unpackedsubPath
       call(UnpackCOMMAND, shell=True)
 
-      ManifestCOMMAND = "python " + appsrepoPath + "/tools/copy_manifest.py " + unpackedPath + " " + manifestPath
+      ManifestCOMMAND = "python " + appsrepoPath + "/tools/copy_manifest.py " + unpackedsubPath + " " + manifestPath
       call(ManifestCOMMAND, shell=True)
 
-      CodeCOMMAND = "python " + appsrepoPath + "/smali-methods-finder/smali_invoked_methods.py " + unpackedPath + "/ " + codePath + "/"
+      CodeCOMMAND = "python " + appsrepoPath + "/smali-methods-finder/smali_invoked_methods.py " + unpackedsubPath + "/ " + codePath + "/"
       call(CodeCOMMAND, shell=True)
 
-      uixmlCOMMAND = "python " + appsrepoPath + "/ui-xml/ui_xml.py " + unpackedPath + " -o " + uixmlPath
+      uixmlCOMMAND = "python " + appsrepoPath + "/ui-xml/ui_xml.py " + unpackedsubPath + " -o " + uixmlPath
       call(uixmlCOMMAND, shell=True)
 
     break
