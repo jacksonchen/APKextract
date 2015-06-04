@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 from subprocess import call
 
 appsrepo = sys.argv[2]
@@ -13,44 +14,24 @@ manifestPath = os.path.abspath(manifest)
 codePath = os.path.abspath(code)
 uixmlPath = os.path.abspath(uixml)
 
-for root, dirs, files in os.walk(sys.argv[1]):
-  if not dirs:
-    print "=====No subdirectories====="
-    dirPath = os.path.abspath(root)
+for file in os.listdir(sys.argv[1]):
+  m = re.search('(.+).txt$', file)
+  unpackedSubPath = unpackedPath + "/" + m.groups(1)[0] + "/"
+  if not os.path.exists(unpackedSubPath):
+    os.makedirs(unpackedSubPath)
 
-    UnpackCOMMAND = "python " + appsrepoPath + "/tools/apktool_executor.py " + dirPath + " " + unpackedPath
-    call(UnpackCOMMAND, shell=True)
+  path = os.path.join(sys.argv[1], file)
 
-    ManifestCOMMAND = "python " + appsrepoPath + "/tools/copy_manifest.py " + unpackedPath + " " + manifestPath
-    call(ManifestCOMMAND, shell=True)
+  UnpackCOMMAND = "python " + appsrepoPath + "/tools/apktool_executor.py " + appsrepoPath + " " + unpackedSubPath + " -i " + path
+  call(UnpackCOMMAND, shell=True)
 
-    CodeCOMMAND = "python " + appsrepoPath + "/smali-methods-finder/smali_invoked_methods.py " + unpackedPath + "/ " + codePath + "/"
-    call(CodeCOMMAND, shell=True)
+  ManifestCOMMAND = "python " + appsrepoPath + "/tools/copy_manifest.py " + unpackedSubPath + " " + manifestPath
+  call(ManifestCOMMAND, shell=True)
 
-    uixmlCOMMAND = "python " + appsrepoPath + "/ui-xml/ui_xml.py " + unpackedPath + " -o " + uixmlPath
-    call(uixmlCOMMAND, shell=True)
-    break
+  CodeCOMMAND = "python " + appsrepoPath + "/smali-methods-finder/smali_invoked_methods.py " + unpackedSubPath + "/ " + codePath + "/"
+  call(CodeCOMMAND, shell=True)
 
-  else:
-    print "=====Multiple subdirectories====="
-    for dir in dirs:
-      dirPath = os.path.abspath(os.path.join(root, dir))
-      unpackedsubPath = os.path.join(unpackedPath, dir)
+  uixmlCOMMAND = "python " + appsrepoPath + "/ui-xml/ui_xml.py " + unpackedSubPath + " -o " + uixmlPath
+  call(uixmlCOMMAND, shell=True)
 
-      if not os.path.exists(unpackedsubPath):
-        os.makedirs(unpackedsubPath)
-
-      UnpackCOMMAND = "python " + appsrepoPath + "/tools/apktool_executor.py " + dirPath + " " + unpackedsubPath
-      call(UnpackCOMMAND, shell=True)
-
-      ManifestCOMMAND = "python " + appsrepoPath + "/tools/copy_manifest.py " + unpackedsubPath + " " + manifestPath
-      call(ManifestCOMMAND, shell=True)
-
-      CodeCOMMAND = "python " + appsrepoPath + "/smali-methods-finder/smali_invoked_methods.py " + unpackedsubPath + "/ " + codePath + "/"
-      call(CodeCOMMAND, shell=True)
-
-      uixmlCOMMAND = "python " + appsrepoPath + "/ui-xml/ui_xml.py " + unpackedsubPath + " -o " + uixmlPath
-      call(uixmlCOMMAND, shell=True)
-
-    break
 
