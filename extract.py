@@ -1,5 +1,6 @@
 import sys
 import os
+import resource
 import re
 from subprocess import call
 
@@ -34,7 +35,7 @@ for file in os.listdir(textfiles):
     UnpackCOMMAND = "python " + appsrepoPath + "/tools/apktool_executor.py " + appsrepoPath + " " + unpackedSubPath + " -i " + path
     call(UnpackCOMMAND, shell=True)
 
-    moveCOMMAND = "mv " + textfiles + file + " " + readtextfiles
+    moveCOMMAND = "mv " + path + " " + readtextfiles
     call(moveCOMMAND, shell = True)
 
     ManifestCOMMAND = "python " + appsrepoPath + "/tools/copy_manifest.py " + unpackedSubPath + " " + manifestPath
